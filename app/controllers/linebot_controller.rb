@@ -21,10 +21,11 @@ class LinebotController < ApplicationController
     arr_yes=["検索","現在地を使う","現在時刻","ラーメン食べたい！","中華食べたい！","洋食食べたい！","和食食べたい！"]
     arr_noo=["検索","場所を指定する","時間を指定する","ラーメン食べたくない…","中華食べたくない…","洋食食べたくない…","和食食べたくない…"]
 
-    (arr_que.size-1).times do |i|
       client.parse_events_from(body).each do |event|
         if event.class == Line::Bot::Event::Message
           if event.type == Line::Bot::Event::MessageType::Text
+            if event["message"]["text"]=="検索"
+            #質問０
             message = {
               "type": "template",
               "altText": "質問が追加されました",
@@ -35,40 +36,139 @@ class LinebotController < ApplicationController
                   {
                     "type": "postback",
                     "label": "この周辺",
-                    "data": "0-1"
+                    "data": "0.0"
                   },
                   {
                     "type": "postback",
                     "label": "場所を指定する",
-                    "data": "0-2"
+                    "data": "0.1"
                   },
                   {
                     "type": "postback",
                     "label": "スキップ",
-                    "data": "0-3"
+                    "data": "0.2"
                   }
                 ]
               }
             }
-            client.reply_message(event['replyToken'], message)
+            # client.reply_message(event['replyToken'], message)
+            end
+
+            if event["message"]["text"]=="時間"
+              
+            end
+
+
           end
         end
 
         if event.class == Line::Bot::Event::Postback
-
-
-          message={
-            type: "text",
-            text: event["postback"]["data"]
-          }
+          if event["postback"]["data"]=="0.0"
+            #質問１
+            message = {
+              "type": "template",
+              "altText": "質問が追加されました",
+              "template": {
+                "type": "buttons",
+                "text": "何で向かう？",
+                "actions": [
+                  {
+                    "type": "postback",
+                    "label": "徒歩",
+                    "data": "1.0"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "自転車",
+                    "data": "1.1"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "車",
+                    "data": "1.2"
+                  }
+                ]
+              }
+            }
           #binding.pry
-          client.reply_message(event['replyToken'], message)
+          # client.reply_message(event['replyToken'], message)
+          end
+
+          if event["postback"]["data"]=="0.1"
+            #質問２
+            message = {
+              "type": "template",
+              "altText": "質問が追加されました",
+              "template": {
+                "type": "buttons",
+                "text": "エリアを選んでね！",
+                "actions": [
+                  {
+                    "type": "postback",
+                    "label": "吾妻・竹園",
+                    "data": "2.0"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "春日・天久保",
+                    "data": "2.1"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "天王台・桜",
+                    "data": "2.2"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "一の矢・花畑",
+                    "data": "2.3"
+                  }
+                ]
+              }
+            }
+          #binding.pry
+          # client.reply_message(event['replyToken'], message)
+          end
+
+          if event["postback"]["data"].to_f>=0.2 && event["postback"]["data"].to_f<3 #0.2,1,2の時
+            #質問３
+            message = {
+              "type": "template",
+              "altText": "質問が追加されました",
+              "template": {
+                "type": "buttons",
+                "text": "時間は？",
+                "actions": [
+                  {
+                    "type": "postback",
+                    "label": "現在時刻",
+                    "data": "3.0"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "時間を指定する",
+                    "data": "3.1"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "スキップ",
+                    "data": "3.2"
+                  }
+                ]
+              }
+            }
+          #binding.pry
+          # client.reply_message(event['replyToken'], message)
+          end
 
         end
 
+
+
+        client.reply_message(event['replyToken'], message)
+
       end
       head :ok
-    end
   end
 
 end
