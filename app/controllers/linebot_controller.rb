@@ -21,10 +21,10 @@ class LinebotController < ApplicationController
     arr_yes=["検索","現在地を使う","現在時刻","ラーメン食べたい！","中華食べたい！","洋食食べたい！","和食食べたい！"]
     arr_noo=["検索","場所を指定する","時間を指定する","ラーメン食べたくない…","中華食べたくない…","洋食食べたくない…","和食食べたくない…"]
 
-      client.parse_events_from(body).each do |event|
-        if event.class == Line::Bot::Event::Message
-          if event.type == Line::Bot::Event::MessageType::Text
-            if event["message"]["text"]=="検索"
+    client.parse_events_from(body).each do |event|
+      if event.class == Line::Bot::Event::Message
+        if event.type == Line::Bot::Event::MessageType::Text
+          if event["message"]["text"]=="検索"
             #質問０
             message = {
               "type": "template",
@@ -52,12 +52,27 @@ class LinebotController < ApplicationController
               }
             }
             # client.reply_message(event['replyToken'], message)
-            end
+          end
 
-            if event["message"]["text"]=="時間"
-              
+          if event["message"]["text"]=="時間"
+            message = {
+              "type": "template",
+              "altText": "質問が追加されました",
+              "template": {
+                "type": "buttons",
+                "text": "時間を選択してね！",
+                "actions": [
+                  {
+                    "type":"datetimepicker",
+                    "data":"aaa",
+                    "mode":"datetime",
+                    "label": "時間を選択",
+                    "initial":"2019-12-25t00:00"
+                  }
+                ]
+              }
+            }
             end
-
 
           end
         end
@@ -90,8 +105,6 @@ class LinebotController < ApplicationController
                 ]
               }
             }
-          #binding.pry
-          # client.reply_message(event['replyToken'], message)
           end
 
           if event["postback"]["data"]=="0.1"
@@ -126,8 +139,6 @@ class LinebotController < ApplicationController
                 ]
               }
             }
-          #binding.pry
-          # client.reply_message(event['replyToken'], message)
           end
 
           if event["postback"]["data"].to_f>=0.2 && event["postback"]["data"].to_f<3 #0.2,1,2の時
@@ -157,46 +168,44 @@ class LinebotController < ApplicationController
                 ]
               }
             }
-          #binding.pry
-          # client.reply_message(event['replyToken'], message)
           end
 
         end
 
 
-
+        #binding.pry
         client.reply_message(event['replyToken'], message)
 
       end
       head :ok
+    end
+
   end
 
-end
-
-# if event["message"]["text"]==arr_yes[i]||event["message"]["text"]==arr_noo[i]
-#
-#   message = {
-#     type: "template",
-#     altText: "this is a confirm template",
-#     template: {
-#       type: "confirm",
-#       #type: 'text',a
-#       #text: event.message['text']
-#       #text: event["message"]["text"]
-#       text: arr_que[i+1],
-#       actions: [
-#         {
-#           type: "message",
-#           label: arr_yes[i+1],
-#           text: arr_yes[i+1]
-#         },
-#         {
-#           type: "message",
-#           label: arr_noo[i+1],
-#           text: arr_noo[i+1]
-#         }
-#       ]
-#     }
-#   }
-#   client.reply_message(event['replyToken'], message)
-# end
+  # if event["message"]["text"]==arr_yes[i]||event["message"]["text"]==arr_noo[i]
+  #
+  #   message = {
+  #     type: "template",
+  #     altText: "this is a confirm template",
+  #     template: {
+  #       type: "confirm",
+  #       #type: 'text',a
+  #       #text: event.message['text']
+  #       #text: event["message"]["text"]
+  #       text: arr_que[i+1],
+  #       actions: [
+  #         {
+  #           type: "message",
+  #           label: arr_yes[i+1],
+  #           text: arr_yes[i+1]
+  #         },
+  #         {
+  #           type: "message",
+  #           label: arr_noo[i+1],
+  #           text: arr_noo[i+1]
+  #         }
+  #       ]
+  #     }
+  #   }
+  #   client.reply_message(event['replyToken'], message)
+  # end
