@@ -59,7 +59,7 @@ class LinebotController < ApplicationController
           elsif event["message"]["text"]=="現在地"
             message={
               type: "text",
-              text: Time.new
+              text: event["source"]["userId"]
             }
           else
             message={
@@ -137,6 +137,8 @@ class LinebotController < ApplicationController
         end
 
         if event["postback"]["data"].to_f>=0.2 && event["postback"]["data"].to_f<3 #0.2, 1. ,2.の時
+          #モデルに登録
+          #ユーザIDは、event["source"]["userId"]
           if event["postback"]["data"].to_i==1
             #現在地取得
             #範囲取得
