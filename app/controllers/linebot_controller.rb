@@ -24,7 +24,7 @@ class LinebotController < ApplicationController
     client.parse_events_from(body).each do |event|
       if event.class == Line::Bot::Event::Message
         if event.type == Line::Bot::Event::MessageType::Text
-          if event["message"]["text"]=="検索"
+          if event["message"]["text"]=~/検索/
             #質問０
             message = {
               "type": "template",
@@ -40,7 +40,7 @@ class LinebotController < ApplicationController
                   },
                   {
                     "type": "postback",
-                    "label": "場所を指定する",
+                    "label": "地域を指定する",
                     "data": "0.1"
                   },
                   {
@@ -51,13 +51,28 @@ class LinebotController < ApplicationController
                 ]
               }
             }
+          elsif event["message"]["text"]=="時刻"
+            message={
+              type: "text",
+              text: Time.new
+            }
+          elsif event["message"]["text"]=="現在地"
+            message={
+              type: "text",
+              text: Time.new
+            }
+          else
+            message={
+              type: "text",
+              text: "『検索』と送信すると筑波大学周辺の飲食店を絞り、優柔不断なあなたに最適なお店を提案します☺️"
+            }
           end
 
 
         end
       end
 
-      if event.class == Line::Bot::Event::Postback || event.class == Line::Bot::Event::Postback
+      if event.class == Line::Bot::Event::Postback
         if event["postback"]["data"]=="0.0"
           #質問１
           message = {
@@ -69,17 +84,17 @@ class LinebotController < ApplicationController
               "actions": [
                 {
                   "type": "postback",
-                  "label": "徒歩",
+                  "label": "徒歩(半径500m圏内を表示)",
                   "data": "1.0"
                 },
                 {
                   "type": "postback",
-                  "label": "自転車",
+                  "label": "自転車(半径2km圏内を表示)",
                   "data": "1.1"
                 },
                 {
                   "type": "postback",
-                  "label": "車",
+                  "label": "車(半径5km圏内を表示)",
                   "data": "1.2"
                 }
               ]
@@ -98,22 +113,22 @@ class LinebotController < ApplicationController
               "actions": [
                 {
                   "type": "postback",
-                  "label": "吾妻・竹園",
+                  "label": "吾妻・竹園周辺",
                   "data": "2.0"
                 },
                 {
                   "type": "postback",
-                  "label": "春日・天久保",
+                  "label": "春日・天久保周辺",
                   "data": "2.1"
                 },
                 {
                   "type": "postback",
-                  "label": "天王台・桜",
+                  "label": "天王台・桜周辺",
                   "data": "2.2"
                 },
                 {
                   "type": "postback",
-                  "label": "一の矢・花畑",
+                  "label": "一の矢・花畑周辺",
                   "data": "2.3"
                 }
               ]
@@ -122,6 +137,13 @@ class LinebotController < ApplicationController
         end
 
         if event["postback"]["data"].to_f>=0.2 && event["postback"]["data"].to_f<3 #0.2, 1. ,2.の時
+          if event["postback"]["data"].to_i==1
+            #現在地取得
+            #範囲取得
+          elsif event["postback"]["data"].to_i==2
+            #地域取得
+          end
+
           #質問３
           message = {
             "type": "template",
@@ -211,7 +233,34 @@ class LinebotController < ApplicationController
           }
         end
 
-        if event["postback"]["data"].to_f>=4 && event["postback"]["data"].to_f<5 #4.
+        if event["postback"]["data"].to_i==4 #4.
+          #ジャンルを絞る（中華はラーメンも含む）
+          #質問５
+          message = {
+            "type": "template",
+            "altText": "質問が追加されました",
+            "template": {
+              "type": "buttons",
+              "text": "やっぱラーメンがいいよな！？",
+              "actions": [
+                {
+                  "type": "postback",
+                  "label": "いい！",
+                  "data": "5.0"
+                },
+                {
+                  "type": "postback",
+                  "label": "それはちょっと…",
+                  "data": "5.1"
+                }
+              ]
+            }
+          }
+        end
+
+        if event["postback"]["data"].to_i==5 #5.
+          #ラーメンだけにするか。しないか
+          #検索結果
           message={
             type: "text",
             text: "あなたにオススメのお店は..."
@@ -228,31 +277,3 @@ class LinebotController < ApplicationController
   end
 
 end
-
-# if event["message"]["text"]==arr_yes[i]||event["message"]["text"]==arr_noo[i]
-#
-#   message = {
-#     type: "template",
-#     altText: "this is a confirm template",
-#     template: {
-#       type: "confirm",
-#       #type: 'text',a
-#       #text: event.message['text']
-#       #text: event["message"]["text"]
-#       text: arr_que[i+1],
-#       actions: [
-#         {
-#           type: "message",
-#           label: arr_yes[i+1],
-#           text: arr_yes[i+1]
-#         },
-#         {
-#           type: "message",
-#           label: arr_noo[i+1],
-#           text: arr_noo[i+1]
-#         }
-#       ]
-#     }
-#   }
-#   client.reply_message(event['replyToken'], message)
-# end
