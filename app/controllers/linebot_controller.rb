@@ -25,38 +25,78 @@ class LinebotController < ApplicationController
       client.parse_events_from(body).each do |event|
         if event.class == Line::Bot::Event::Message
           if event.type == Line::Bot::Event::MessageType::Text
-            if event["message"]["text"]==arr_yes[i]||event["message"]["text"]==arr_noo[i]
-
-              message = {
-                type: "template",
-                altText: "this is a confirm template",
-                template: {
-                  type: "confirm",
-                  #type: 'text',a
-                  #text: event.message['text']
-                  #text: event["message"]["text"]
-                  text: arr_que[i+1],
-                  actions: [
-                    {
-                      type: "message",
-                      label: arr_yes[i+1],
-                      text: arr_yes[i+1]
-                    },
-                    {
-                      type: "message",
-                      label: arr_noo[i+1],
-                      text: arr_noo[i+1]
-                    }
-                  ]
-                }
+            message = {
+              "type": "template",
+              "altText": "質問が追加されました",
+              "template": {
+                "type": "buttons",
+                "text": "場所は？",
+                "actions": [
+                  {
+                    "type": "postback",
+                    "label": "この周辺",
+                    "data": "0-1"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "場所を指定する",
+                    "data": "0-2"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "スキップ",
+                    "data": "0-3"
+                  }
+                ]
               }
-              client.reply_message(event['replyToken'], message)
-            end
+            }
+            client.reply_message(event['replyToken'], message)
           end
         end
+
+        if event.class == Line::Bot::Event::Postback
+
+
+          message={
+            type: "text",
+            text: event["postback"]["data"]
+          }
+          #binding.pry
+          client.reply_message(event['replyToken'], message)
+
+        end
+
       end
       head :ok
     end
   end
 
 end
+
+# if event["message"]["text"]==arr_yes[i]||event["message"]["text"]==arr_noo[i]
+#
+#   message = {
+#     type: "template",
+#     altText: "this is a confirm template",
+#     template: {
+#       type: "confirm",
+#       #type: 'text',a
+#       #text: event.message['text']
+#       #text: event["message"]["text"]
+#       text: arr_que[i+1],
+#       actions: [
+#         {
+#           type: "message",
+#           label: arr_yes[i+1],
+#           text: arr_yes[i+1]
+#         },
+#         {
+#           type: "message",
+#           label: arr_noo[i+1],
+#           text: arr_noo[i+1]
+#         }
+#       ]
+#     }
+#   }
+#   client.reply_message(event['replyToken'], message)
+# end
