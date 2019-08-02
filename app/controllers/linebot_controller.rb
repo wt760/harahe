@@ -72,6 +72,10 @@ class LinebotController < ApplicationController
 
         if event.type == Line::Bot::Event::MessageType::Location
           #緯度経度をモデルに格納
+          #text: event["message"]["latitude"]
+          #text: event["message"]["longitude"]
+          #で参照できる
+
           #質問１
           message = {
             "type": "template",
@@ -111,11 +115,11 @@ class LinebotController < ApplicationController
             "altText": "質問に答えてね！",
             "template": {
               "type": "buttons",
-              "text": "場所を選択してね！",
+              "text": "場所を選択する",
               "actions": [
                 {
                   "type":"uri",
-                  "data":"0.3",
+                  #"data":"0.3",
                   "label": "場所を指定してね！",
                   "uri": "line://nv/location"
                 }
@@ -157,10 +161,6 @@ class LinebotController < ApplicationController
             }
           }
         end
-
-        # if event["postback"]["data"]=="0.3"
-        #
-        # end
 
         if event["postback"]["data"].to_f>=0.2 && event["postback"]["data"].to_f<3 #0.2, 1. ,2.の時
           #モデルに登録
