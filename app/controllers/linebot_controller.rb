@@ -17,10 +17,6 @@ class LinebotController < ApplicationController
     signature = request.env['HTTP_X_LINE_SIGNATURE']
     head :bad_request unless client.validate_signature(body, signature)
 
-    arr_que=["","場所は？","時間は？","ラーメン食べたい？","中華食べたい？","洋食食べたい？","和食食べたい？"]
-    arr_yes=["検索","現在地を使う","現在時刻","ラーメン食べたい！","中華食べたい！","洋食食べたい！","和食食べたい！"]
-    arr_noo=["検索","場所を指定する","時間を指定する","ラーメン食べたくない…","中華食べたくない…","洋食食べたくない…","和食食べたくない…"]
-
     client.parse_events_from(body).each do |event|
       if event.class == Line::Bot::Event::Message
         if event.type == Line::Bot::Event::MessageType::Text
@@ -214,7 +210,7 @@ class LinebotController < ApplicationController
                   "data":"3.3",
                   "mode":"datetime",
                   "label": "時間を選択",
-                  "initial":"2019-12-25t00:00"
+                  "initial":Time.now.strftime("%Y-%m-%dT%H:%M")
                 }
               ]
             }
@@ -225,40 +221,50 @@ class LinebotController < ApplicationController
 
           if event["postback"]["data"]=="3.1"
             #データベースに現在日時をデータベースに入れる
+            message={
+              type:"text",
+              text: Date.parse(Time.now.strftime("%Y-%m-%d")).wday
+              #text: Date.parse(Time.now.strftime("%Y-%m-%dT%H:%M").split("T")[0]).wday
+            }
           elsif event["postback"]["data"]=="3.3"
             #データベースに選択された日時をデータベースに入れる
+            message={
+              type:"text",
+              #text: event["postback"]["params"]["datetime"]
+              text: Date.parse(event["postback"]["params"]["datetime"].split("T")[0]).wday
+            }
           end
           #質問４
-          message = {
-            "type": "template",
-            "altText": "質問に答えてね！",
-            "template": {
-              "type": "buttons",
-              "text": "ジャンルは？",
-              "actions": [
-                {
-                  "type": "postback",
-                  "label": "和食",
-                  "data": "4.0"
-                },
-                {
-                  "type": "postback",
-                  "label": "洋食",
-                  "data": "4.1"
-                },
-                {
-                  "type": "postback",
-                  "label": "中華",
-                  "data": "4.2"
-                },
-                {
-                  "type": "postback",
-                  "label": "エスニック",
-                  "data": "4.3"
-                }
-              ]
-            }
-          }
+          # message = {
+          #   "type": "template",
+          #   "altText": "質問に答えてね！",
+          #   "template": {
+          #     "type": "buttons",
+          #     "text": "ジャンルは？",
+          #     "actions": [
+          #       {
+          #         "type": "postback",
+          #         "label": "和食",
+          #         "data": "4.0"
+          #       },
+          #       {
+          #         "type": "postback",
+          #         "label": "洋食",
+          #         "data": "4.1"
+          #       },
+          #       {
+          #         "type": "postback",
+          #         "label": "中華",
+          #         "data": "4.2"
+          #       },
+          #       {
+          #         "type": "postback",
+          #         "label": "エスニック",
+          #         "data": "4.3"
+          #       }
+          #     ]
+          #   }
+          # }
         end
 
         if event["postback"]["data"].to_i==4 #4.
@@ -287,11 +293,86 @@ class LinebotController < ApplicationController
         end
 
         if event["postback"]["data"].to_i==5 #5.
-          #ラーメンだけにするか。しないか
+          #ラーメンだけにするか。しないかをモデルに格納
           #検索結果
-          message={
-            type: "text",
-            text: "あなたにオススメのお店は..."
+          message = {
+            "type": "flex",
+            "altText": "#",
+            "contents": {
+              "type": "bubble",
+              "hero": {
+                "type": "image",
+                "url": "https://tblg.k-img.com/restaurant/images/Rvw/20748/640x640_rect_20748683.jpg",
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover",
+                "action": {
+                  "type": "uri",
+                  "uri": "https://classmethod.jp/"
+                }
+              },
+              "body": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "md",
+                "action": {
+                  "type": "uri",
+                  "uri": "https://classmethod.jp/"
+                },
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "清六屋",
+                    "size": "xl",
+                    "weight": "bold"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "spacing": "sm",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "Place",
+                        "color": "#aaaaaa",
+                        "size": "sm",
+                        "flex": 1
+                      },
+                      {
+                        "type": "text",
+                        "text": "茨城県つくば市天久保3丁目4-8",
+                        "wrap": true,
+                        "color": "#666666",
+                        "size": "sm",
+                        "flex": 5
+                      }
+                    ]
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "spacing": "sm",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "営業時間",
+                        "color": "#aaaaaa",
+                        "size": "sm",
+                        "flex": 1
+                      },
+                      {
+                        "type": "text",
+                        "text": "10:00-18:00",
+                        "wrap": true,
+                        "color": "#666666",
+                        "size": "sm",
+                        "flex": 5
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
           }
         end
 
