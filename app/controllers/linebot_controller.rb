@@ -28,19 +28,19 @@ class LinebotController < ApplicationController
             #質問０
             message = {
               "type": "template",
-              "altText": "質問が追加されました",
+              "altText": "質問に答えてね！",
               "template": {
                 "type": "buttons",
                 "text": "場所は？",
                 "actions": [
                   {
                     "type": "postback",
-                    "label": "この周辺",
+                    "label": "地図から指定する",
                     "data": "0.0"
                   },
                   {
                     "type": "postback",
-                    "label": "地域を指定する",
+                    "label": "地域名を指定する",
                     "data": "0.1"
                   },
                   {
@@ -59,7 +59,7 @@ class LinebotController < ApplicationController
           elsif event["message"]["text"]=="現在地"
             message={
               type: "text",
-              text: event["source"]["userId"]
+              text: "test"
             }
           else
             message={
@@ -68,16 +68,14 @@ class LinebotController < ApplicationController
             }
           end
 
-
         end
-      end
 
-      if event.class == Line::Bot::Event::Postback
-        if event["postback"]["data"]=="0.0"
+        if event.type == Line::Bot::Event::MessageType::Location
+          #緯度経度をモデルに格納
           #質問１
           message = {
             "type": "template",
-            "altText": "質問が追加されました",
+            "altText": "質問に答えてね！",
             "template": {
               "type": "buttons",
               "text": "何で向かう？",
@@ -102,11 +100,35 @@ class LinebotController < ApplicationController
           }
         end
 
+      end
+
+      if event.class == Line::Bot::Event::Postback
+        if event["postback"]["data"]=="0.0"
+          #位置情報探す
+          #0.3を返す
+          message = {
+            "type": "template",
+            "altText": "質問に答えてね！",
+            "template": {
+              "type": "buttons",
+              "text": "場所を選択してね！",
+              "actions": [
+                {
+                  "type":"uri",
+                  "data":"0.3",
+                  "label": "場所を指定してね！",
+                  "uri": "line://nv/location"
+                }
+              ]
+            }
+          }
+        end
+
         if event["postback"]["data"]=="0.1"
           #質問２
           message = {
             "type": "template",
-            "altText": "質問が追加されました",
+            "altText": "質問に答えてね！",
             "template": {
               "type": "buttons",
               "text": "エリアを選んでね！",
@@ -136,6 +158,10 @@ class LinebotController < ApplicationController
           }
         end
 
+        # if event["postback"]["data"]=="0.3"
+        #
+        # end
+
         if event["postback"]["data"].to_f>=0.2 && event["postback"]["data"].to_f<3 #0.2, 1. ,2.の時
           #モデルに登録
           #ユーザIDは、event["source"]["userId"]
@@ -149,7 +175,7 @@ class LinebotController < ApplicationController
           #質問３
           message = {
             "type": "template",
-            "altText": "質問が追加されました",
+            "altText": "質問に答えてね！",
             "template": {
               "type": "buttons",
               "text": "時間は？",
@@ -178,7 +204,7 @@ class LinebotController < ApplicationController
           #時間を入力
           message = {
             "type": "template",
-            "altText": "質問が追加されました",
+            "altText": "質問に答えてね！",
             "template": {
               "type": "buttons",
               "text": "時間を選択してね！",
@@ -205,7 +231,7 @@ class LinebotController < ApplicationController
           #質問４
           message = {
             "type": "template",
-            "altText": "質問が追加されました",
+            "altText": "質問に答えてね！",
             "template": {
               "type": "buttons",
               "text": "ジャンルは？",
@@ -240,14 +266,14 @@ class LinebotController < ApplicationController
           #質問５
           message = {
             "type": "template",
-            "altText": "質問が追加されました",
+            "altText": "質問に答えてね！",
             "template": {
               "type": "buttons",
               "text": "やっぱラーメンがいいよな！？",
               "actions": [
                 {
                   "type": "postback",
-                  "label": "いい！",
+                  "label": "いいね！",
                   "data": "5.0"
                 },
                 {
